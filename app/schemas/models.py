@@ -1,8 +1,6 @@
 from typing import TypedDict, List, Optional
 from datetime import datetime
 
-from pydantic import BaseModel, Field
-
 
 class GovernanceState(TypedDict):
     """
@@ -48,28 +46,3 @@ class GovernanceState(TypedDict):
     # Human Review
     assigned_reviewer: Optional[str]
     escalation_status: Optional[str]
-
-
-# ── Structured Output Schemas (for LLM extraction) ──────────────
-
-class ExtractedIntent(BaseModel):
-    """Structured intent extracted from a natural language governance request."""
-
-    action_type: str = Field(
-        description="Type of action requested: refund, access_request, deployment, data_deletion, etc."
-    )
-    refund_amount: Optional[float] = Field(
-        default=None,
-        description="Monetary amount involved, if applicable."
-    )
-    customer_id: Optional[str] = Field(
-        default=None,
-        description="Customer identifier, if mentioned in the request."
-    )
-    currency: Optional[str] = Field(
-        default=None,
-        description="Currency code (INR, USD, EUR, etc.), if applicable."
-    )
-    risk_category: str = Field(
-        description="Risk category: financial, security, operational, compliance."
-    )
