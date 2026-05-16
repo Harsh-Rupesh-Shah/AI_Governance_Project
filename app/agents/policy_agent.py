@@ -8,9 +8,11 @@ Input from state:  request_text, action_type, risk_category
 Writes to state:   retrieved_policies, matched_policy_ids
 """
 
+import logging
 from app.schemas.models import GovernanceState
 from app.services.vectordb import retrieve_relevant_policies
 
+logger = logging.getLogger(__name__)
 
 def policy_agent(state: GovernanceState) -> dict:
     """
@@ -28,7 +30,7 @@ def policy_agent(state: GovernanceState) -> dict:
     
     search_query = " | ".join(query_parts)
     
-    print(f"    [policy_agent] Querying vector store: {search_query}")
+    logger.info(f"Querying vector store: {search_query}")
     
     # Retrieve top 3 relevant policy chunks
     policies = retrieve_relevant_policies(search_query, top_k=3)
