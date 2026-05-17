@@ -16,10 +16,13 @@ Run from project root:
 """
 
 import uuid
-import json
 import sys
 import os
+import io
 from datetime import datetime, timezone
+
+# Reconfigure stdout to use UTF-8 to prevent charmap errors on Windows
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # Add project root to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -72,31 +75,31 @@ config = {
 # ── Run ──────────────────────────────────────────────────────────
 
 def run():
-    print("\n" + "═" * 60)
-    print("  AI Governance Copilot — End-to-End Sample Run")
-    print("═" * 60)
-    print(f"\n📥 REQUEST:\n   {REQUEST_TEXT}")
-    print(f"\n🔑 Thread ID: {initial_state['request_id']}")
-    print("\n⏳ Running workflow...\n")
+    print("\n" + "=" * 60)
+    print("  AI Governance Copilot - End-to-End Sample Run")
+    print("=" * 60)
+    print(f"\n[REQUEST]:\n   {REQUEST_TEXT}")
+    print(f"\n[Thread ID]: {initial_state['request_id']}")
+    print("\nRunning workflow...\n")
 
     # Stream events so we can see each agent as it executes
     for step_num, event in enumerate(
         app.stream(initial_state, config=config, stream_mode="updates"), start=1
     ):
         for agent_name, state_update in event.items():
-            print(f"  [{step_num}] ✅ {agent_name}")
+            print(f"  [{step_num}] {agent_name}")
             for key, value in state_update.items():
                 if value is not None and value != [] and value != "":
                     print(f"        {key}: {value}")
 
-    print("\n" + "─" * 60)
+    print("\n" + "-" * 60)
 
     # Fetch final state from the checkpointer
     final_snapshot = app.get_state(config)
     final_state = final_snapshot.values
 
-    print("\n📊 FINAL STATE SUMMARY")
-    print("─" * 60)
+    print("\n[FINAL STATE SUMMARY]")
+    print("-" * 60)
 
     sections = {
         "Intent Extraction": ["action_type", "refund_amount", "customer_id", "currency", "risk_category"],
@@ -114,10 +117,10 @@ def run():
             if val is not None and val != [] and val != "":
                 print(f"    {field}: {val}")
             else:
-                print(f"    {field}: —")
+                print(f"    {field}: -")
 
-    print("\n" + "═" * 60)
-    print(f"\n✅ Done. Audit ID: {final_state.get('audit_id')}")
+    print("\n" + "=" * 60)
+    print(f"\nDone. Audit ID: {final_state.get('audit_id')}")
     print(f"   This run is checkpointed in MongoDB under thread: {initial_state['request_id']}")
     print(f"   Audit record written to MongoDBStore under customer: {final_state.get('customer_id', 'unknown')}\n")
 

@@ -1,6 +1,10 @@
-# ── Web Framework ────────────────────────────────────────────────
+# ── Web Framework & Auth ───────────────────────────────────────
 fastapi
 uvicorn[standard]
+passlib[bcrypt]
+bcrypt==3.2.2
+python-jose
+python-multipart
 
 # ── LangChain & LangGraph ────────────────────────────────────────
 langchain
@@ -13,6 +17,9 @@ google-generativeai
 
 # ── Vector Store ─────────────────────────────────────────────────
 chromadb
+langchain-chroma
+langchain-huggingface
+sentence-transformers
 
 # ── Database (MongoDB async) ────────────────────────────────────
 motor
