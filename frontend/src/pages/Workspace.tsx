@@ -23,9 +23,7 @@ export default function Workspace() {
       setReason(res.data.decision_reason);
       setRiskScore(res.data.risk_score);
       setAuditId(res.data.audit_id);
-      if (res.data.decision !== 'CLARIFY') {
-        setRequestText(''); // clear on finish
-      }
+      setRequestText(''); // clear on submit so user can enter clarification or next request
     } catch (err) {
       console.error(err);
       alert("Failed to submit request.");
@@ -57,21 +55,21 @@ export default function Workspace() {
       <main className="workspace">
         {/* Left Pane - User Input */}
         <section className="panel" style={{ flex: 1.2 }}>
-          <h3>Submit New Request</h3>
+          <h3>{decision === 'CLARIFY' ? 'Provide Clarification' : 'Submit New Request'}</h3>
           
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label>Request Details</label>
+              <label>{decision === 'CLARIFY' ? 'Clarification Details' : 'Request Details'}</label>
               <textarea 
                 className="input-field" 
-                placeholder="e.g., I need a refund of 5000 INR for order 123 due to damaged goods..."
+                placeholder={decision === 'CLARIFY' ? "Provide the requested details (e.g., reason code, invoice, proof)..." : "e.g., I need a refund of 5000 INR for order 123 due to damaged goods..."}
                 value={requestText}
                 onChange={(e) => setRequestText(e.target.value)}
                 required
               />
             </div>
             <button type="submit" className="btn" disabled={loading}>
-              {loading ? 'Analyzing via LangGraph...' : 'Submit for AI Review'}
+              {loading ? 'Analyzing via LangGraph...' : (decision === 'CLARIFY' ? 'Submit Clarification' : 'Submit for AI Review')}
             </button>
           </form>
 

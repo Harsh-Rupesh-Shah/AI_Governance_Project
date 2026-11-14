@@ -7,12 +7,14 @@ python-multipart
 
 # ── LangChain & LangGraph ────────────────────────────────────────
 langchain
+langchain-core
 langchain-google-genai
-langchain-community
+langchain-openai
+openai
 langgraph
 
-# ── Google Generative AI SDK ────────────────────────────────────
-google-generativeai
+# ── Google GenAI SDK (Consolidated) ──────────────────────────────
+google-genai
 
 # ── Vector Store ─────────────────────────────────────────────────
 chromadb
@@ -34,3 +36,4 @@ pydantic-settings
 
 # ── Utilities ────────────────────────────────────────────────────
 python-dotenv
+certifi

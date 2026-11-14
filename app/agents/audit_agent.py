@@ -8,15 +8,19 @@ Input from state:  (reads entire state)
 Writes to state:   audit_id, trace_id
 """
 
+import logging
 import uuid
 from datetime import datetime, timezone
+from typing import Optional
 
 from langgraph.store.base import BaseStore
 
 from app.schemas.models import GovernanceState
 
+logger = logging.getLogger(__name__)
 
-def audit_agent(state: GovernanceState, *, store: BaseStore) -> dict:
+
+def audit_agent(state: GovernanceState, *, store: Optional[BaseStore] = None) -> dict:
     """
     LangGraph node: persist the full audit trail to the long-term store.
     The store is injected automatically by LangGraph at runtime.
@@ -51,16 +55,19 @@ def audit_agent(state: GovernanceState, *, store: BaseStore) -> dict:
     }
 
     # ── Persist to long-term store ───────────────────────────────
+    if store is not None:
+        try:
+            # 1. Save to audit namespace (global audit trail)
+            store.put(("audit", "trails"), audit_id, audit_record)
 
-    # 1. Save to audit namespace (global audit trail)
-    store.put(("audit", "trails"), audit_id, audit_record)
-
-    # 2. Save to customer's decision history (for memory_agent lookups)
-    store.put(
-        (customer_id, "decisions"),
-        state.get("request_id", audit_id),
-        audit_record,
-    )
+            # 2. Save to customer's decision history (for memory_agent lookups)
+            store.put(
+                (customer_id, "decisions"),
+                state.get("request_id", audit_id),
+                audit_record,
+            )
+        except Exception as e:
+            logger.warning(f"Could not persist audit record to store: {e}")
 
     return {
         "audit_id": audit_id,

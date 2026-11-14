@@ -53,8 +53,7 @@ def run():
             clarifying = False
         else:
             current_request_text = user_input
-
-        request_id = str(uuid.uuid4())
+            request_id = str(uuid.uuid4())
         
         initial_state = {
             "request_id":  request_id,

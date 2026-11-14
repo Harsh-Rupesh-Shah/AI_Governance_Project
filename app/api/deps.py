@@ -17,8 +17,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 1 week
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
-# MongoDB Dependency
-client = MongoClient(MONGODB_URI)
+# MongoDB Dependency (reused from persistence service with TLS/SSL CA certs)
+from app.services.persistence import client
 db = client[MONGODB_DB_NAME]
 
 def get_db():

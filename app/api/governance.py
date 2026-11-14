@@ -5,6 +5,7 @@ import logging
 
 from app.schemas.api_models import GovernanceRequest, GovernanceResponse, AuditLogResponse
 from app.api.deps import get_current_user, get_db, get_threads_collection
+from app.services.persistence import store
 from app.graph.workflow import app as workflow_app
 
 router = APIRouter()
@@ -85,18 +86,14 @@ def submit_request(req: GovernanceRequest, current_user: dict = Depends(get_curr
 
 @router.get("/audit", response_model=list[AuditLogResponse])
 def get_audit_logs(current_user: dict = Depends(get_current_user)):
-    # Only admins or Finance Ops should see all audits. 
-    # For now, let's just return all for demo purposes.
-    db = get_db()
-    
-    # LangGraph Store MongoDB uses 'namespace' array and puts data in 'value'
-    logs = list(db["memories"].find({"namespace": ["audit", "trails"]}).sort("updated_at", -1).limit(50))
-    
-    response = []
-    for log in logs:
-        # The actual data we saved is inside the 'value' field of the store document
-        audit_data = log.get("value", {})
-        if audit_data:
-            response.append(AuditLogResponse(**audit_data))
-        
+    """Fetch audit logs via the LangGraph Store interface."""
+    try:
+        items = store.search(("audit", "trails"), limit=50)
+        response = [AuditLogResponse(**item.value) for item in items if item.value]
+    except Exception as e:
+        logger.warning(f"Error querying LangGraph store, falling back to direct DB read: {e}")
+        db = get_db()
+        logs = list(db["memories"].find({"namespace": ["audit", "trails"]}).sort("updated_at", -1).limit(50))
+        response = [AuditLogResponse(**log.get("value", {})) for log in logs if log.get("value")]
+
     return response

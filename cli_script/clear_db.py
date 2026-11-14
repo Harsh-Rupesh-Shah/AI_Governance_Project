@@ -5,11 +5,11 @@ from pymongo import MongoClient
 # Add project root to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.config import MONGODB_URI, MONGODB_DB_NAME
+from app.config import MONGODB_DB_NAME
+from app.services.persistence import client
 
 def clear_database():
     print(f"Connecting to MongoDB at {MONGODB_DB_NAME}...")
-    client = MongoClient(MONGODB_URI)
     db = client[MONGODB_DB_NAME]
     
     # Collections used by LangGraph MongoDBSaver and MongoDBStore
@@ -17,7 +17,8 @@ def clear_database():
         "checkpoints", 
         "checkpoint_blobs", 
         "checkpoint_writes",
-        "memories" # This is the custom namespace we used in the Store
+        "memories",     # Custom namespace used in the Store
+        "user_threads"  # Active clarification thread sessions
     ]
     
     # Also clear users if we want a complete wipe, but usually we just want to clear memory

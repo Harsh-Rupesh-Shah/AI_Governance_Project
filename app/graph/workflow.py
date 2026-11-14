@@ -28,24 +28,6 @@ from app.agents.decision_agent import decision_agent
 from app.agents.audit_agent import audit_agent
 
 
-# ── Routing function after decision_agent ────────────────────────
-
-def route_after_decision(state: GovernanceState) -> str:
-    """
-    Conditional edge: inspects the decision field and routes accordingly.
-    All paths lead to audit_agent for traceability.
-    """
-    decision = state.get("decision", "ESCALATE")
-
-    if decision == "APPROVE":
-        return "audit_agent"
-    elif decision == "DENY":
-        return "audit_agent"
-    else:
-        # ESCALATE (or unknown) → still audit, but escalation_status is set by decision_agent
-        return "audit_agent"
-
-
 # ── Build the graph ──────────────────────────────────────────────
 
 workflow = StateGraph(GovernanceState)
@@ -58,23 +40,13 @@ workflow.add_node("risk_agent", risk_agent)
 workflow.add_node("decision_agent", decision_agent)
 workflow.add_node("audit_agent", audit_agent)
 
-# Linear edges: START → intent → policy → memory → risk → decision
+# Linear pipeline: START → intent → policy → memory → risk → decision → audit → END
 workflow.add_edge(START, "intent_agent")
 workflow.add_edge("intent_agent", "policy_agent")
 workflow.add_edge("policy_agent", "memory_agent")
 workflow.add_edge("memory_agent", "risk_agent")
 workflow.add_edge("risk_agent", "decision_agent")
-
-# Conditional edge after decision: routes based on APPROVE / DENY / ESCALATE
-workflow.add_conditional_edges(
-    "decision_agent",
-    route_after_decision,
-    {
-        "audit_agent": "audit_agent",
-    },
-)
-
-# All paths end after audit
+workflow.add_edge("decision_agent", "audit_agent")
 workflow.add_edge("audit_agent", END)
 
 # ── Compile with persistence ─────────────────────────────────────

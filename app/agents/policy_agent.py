@@ -26,7 +26,8 @@ def policy_agent(state: GovernanceState) -> dict:
     if state.get("risk_category"):
         query_parts.append(f"Risk: {state['risk_category']}")
     
-    query_parts.append(state["request_text"])
+    if state.get("request_text"):
+        query_parts.append(state["request_text"])
     
     search_query = " | ".join(query_parts)
     

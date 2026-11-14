@@ -16,9 +16,16 @@ from langgraph.store.mongodb import MongoDBStore
 from app.config import MONGODB_URI, MONGODB_DB_NAME
 
 
+try:
+    import certifi
+    ca_file = certifi.where()
+except ImportError:
+    ca_file = None
+
 # ── MongoDB Client ───────────────────────────────────────────────
 
-client = MongoClient(MONGODB_URI)
+client_kwargs = {"tlsCAFile": ca_file} if ca_file else {}
+client = MongoClient(MONGODB_URI, **client_kwargs)
 
 
 # ── Short-Term Memory (Checkpointer) ────────────────────────────

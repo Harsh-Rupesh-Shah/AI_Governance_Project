@@ -52,7 +52,7 @@ def intent_agent(state: GovernanceState) -> dict:
     Returns a partial state update dict.
     """
     result: ExtractedIntent = chain.invoke({
-        "request_text": state["request_text"]
+        "request_text": state.get("request_text", "")
     })
 
     return {
